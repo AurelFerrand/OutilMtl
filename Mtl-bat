@@ -1,0 +1,69 @@
+@echo off
+setlocal enabledelayedexpansion
+
+rem Définit le fichier journal pour enregistrer les erreurs.
+set "logfile=C:\Logs\erreur_script.log"
+
+rem Obtient l'heure actuelle au format HH
+set "heu=%time:~0,2%"
+set "heu=!heu: =0!"
+
+rem Exécute des tâches en fonction de l'heure actuelle.
+if "!heu!" == "12" call :ExecuterTaches12h
+if "!heu!" == "14" call :ExecuterTaches14h
+if "!heu!" == "04" call :ExecuterTaches4h
+
+rem Attend 20 minutes avant de poursuivre.
+timeout /t 1200 > nul
+
+rem Ferme toutes les instances d'Excel.
+taskkill /f /im excel.exe
+
+rem Termine le script.
+exit
+
+:ExecuterTaches12h
+rem Exécute des tâches pour 12 heures.
+pushd W:\
+if exist "BDD_Aqui_Brief.xlsm" (
+    start BDD_Aqui_Brief.xlsm
+    timeout /t 120 > nul
+) else (
+    echo %date% %time% - Erreur: Le fichier W:\BDD_Aqui_Brief.xlsm n'existe pas. >> %logfile%
+)
+
+if exist "Aqui_Brief.xlsm" (
+    start Aqui_Brief.xlsm
+    timeout /t 120 > nul
+) else (
+    echo %date% %time% - Erreur: Le fichier W:\Aqui_Brief.xlsm n'existe pas. >> %logfile%
+)
+popd
+goto :eof
+
+:ExecuterTaches14h
+rem Exécute des tâches pour 14 heures.
+pushd D:\outil_14h
+if exist "outil14h.xlsm" (
+    start outil14h.xlsm
+    timeout /t 120 > nul
+) else (
+    echo %date% %time% - Erreur: Le fichier D:\outil_14h\outil14h.xlsm n'existe pas. >> %logfile%
+)
+popd
+goto :eof
+
+:ExecuterTaches4h
+rem Exécute des tâches pour 4 heures.
+pushd D:\outil_4h
+if exist "outil4h.xlsm" (
+    start outil4h.xlsm
+    timeout /t 120 > nul
+) else (
+    echo %date% %time% - Erreur: Le fichier D:\outil_4h\outil4h.xlsm n'existe pas. >> %logfile%
+)
+popd
+
+rem Exécute des tâches additionnelles pour 4 heures, similaires à 12 heures.
+call :ExecuterTaches12h
+goto :eof
